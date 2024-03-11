@@ -1,0 +1,34 @@
+baseURL = 'https://codersblock.org/'
+languageCode = 'en-gb'
+title = "Coder's Block"
+theme = "dark-theme-editor"
+[params]
+
+    [params.footer]
+        [params.footer.socialLink]
+            github = "spectre1989"
+            twitter = "codersblock"
+            email = "joe@codersblock.org"
+            linkedin = "joebestrotheray"
+
+    [params.globalFrontmatter]
+        # The author of this site. This will be shown in 
+        # 1. the footer of all page
+        # 2. the author filed in the single page. (this could be overwritten by the frontmatter of the single page.)
+        # Keep it an empty string or remove this item will hide it from the page
+        author = "Joe Best-Rotheray"
+        
+        # Website description for RSS and SEO. Theme will generate a <meta> tag for this item
+        description = "This is my new hugo site WAHEY AM I SEEING THIS"
+
+        # Website keywords. Theme will generate a <meta> tag for this item.
+        keywords = "hugo,site,new"
+
+        localCss = ["css/custom.css"]
+
+    [params.header]
+        # Website title for header banner.
+        title = "Coder's Block"
+
+        # Subtitle for this site, used in homepage only
+        subtitle = "Subtitle for the thing"

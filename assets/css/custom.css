@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap");
+
+body {
+    font-family: 'Inconsolata';
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.7em;
+    letter-spacing: 0px;
+    font-size: 16px;
+    background-color: #202020;
+}
+
+article.main > div.content * {
+    color: #cbe6cb;
+}
