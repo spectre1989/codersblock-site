@@ -13,3 +13,21 @@ body {
 article.main > div.content * {
     color: #cbe6cb;
 }
+
+article.main > div.content a {
+    color: #f8f8f8;
+}
+
+article.main > div.article-meta > div:where(.breadcumb, .translation) > a {
+    color: #d0ffb3;
+}
+
+article.main > div.article-meta > div:where(.breadcumb, .translation) > a:hover {
+    color: #f8f8f8;
+}
+
+article.main > div.title > h1.title-header {
+    color: #e6e6e6;
+    font-weight: 400;
+    font-size: 28px;
+}
