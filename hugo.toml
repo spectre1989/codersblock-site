@@ -3,7 +3,6 @@ languageCode = 'en-gb'
 title = "Coder's Block"
 theme = "dark-theme-editor"
 [params]
-
     [params.footer]
         [params.footer.socialLink]
             github = "spectre1989"
@@ -32,3 +31,8 @@ theme = "dark-theme-editor"
 
         # Subtitle for this site, used in homepage only
         subtitle = "Subtitle for the thing"
+
+[markup]
+    [markup.highlight]
+        noClasses = false
+        lineNos = true

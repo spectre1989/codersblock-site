@@ -31,3 +31,21 @@ article.main > div.title > h1.title-header {
     font-weight: 400;
     font-size: 28px;
 }
+
+article.main > div.content {
+    .o { color: #569CD6; }
+    .n { color: #D4D4D4; }
+    .k { color: #C586C0 }
+    .p { color: #D4D4D4 }
+    .kt { color: #569CD6 }
+    .nb { color: #569CD6 }
+    .nf { color: #DCDCAA }
+    .c1 { color: #6A9955 }
+    .mi { color: #B5CEA8 }
+    .s { color: #CE9178;}
+    .lnt { color: #505050;}
+}
+
+div.chroma {
+    background-color: #1C1C1C;
+}
