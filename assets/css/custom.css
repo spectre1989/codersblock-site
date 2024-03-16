@@ -14,8 +14,18 @@ article.main > div.content * {
     color: #cbe6cb;
 }
 
+article.main > div.content p {
+    text-align: left;
+}
+
 article.main > div.content > div.codeblock * {
     line-height: 20px;
+}
+
+article.main > div.content img {
+    margin-left: 17.5%;
+    margin-right: 17.5%;
+    width: 65%;
 }
 
 article.main > div.content > div.codeblock table {

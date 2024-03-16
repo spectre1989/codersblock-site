@@ -1,0 +1,19 @@
+{{ $asset_path := "" }}
+{{ $resize := "1000x" }}
+{{ if .IsNamedParams }}
+    {{ $asset_path = .Get "src" }}
+
+    {{/* grab resize like this because an empty string disables resizing */}}
+    {{ range $k, $v := .Params }}
+        {{ if eq $k "resize" }}
+            {{ $resize = $v }}
+        {{ end }}
+    {{ end }}
+{{ else }}
+    {{ $asset_path = .Get 0 }}
+{{ end }}
+{{ $img := resources.Get $asset_path }}
+{{ if $resize }}
+    {{ $img = $img.Resize $resize }}
+{{ end }}
+<img src="{{ $img.RelPermalink }}"/>
