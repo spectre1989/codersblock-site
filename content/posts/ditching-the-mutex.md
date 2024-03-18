@@ -2,6 +2,7 @@
 title = 'Ditching the Mutex'
 date = 2016-06-02T00:00:00Z
 draft = false
+aliases = ["/blog/2016/6/02/ditching-the-mutex"]
 +++
 
 TL;DR - I wrote a multiple-producer multiple-consumer queue without any mutexes, it's pretty fast, [GitHub](https://github.com/spectre1989/fast_mpmc_queue).
@@ -394,6 +395,7 @@ Then I found Relacy, a race detector which can actually simulate loose memory mo
 When I ran my queue through Relacy, it kept detecting a data race, but it didn't make any sense to me. It was occurring at the read from `m_data`, but I could see from the output that it was reading the correct value - and the read and write were not happening concurrently. The answer can be found in the C++ standard (in the version I was reading) 1.10/10:
 
 > "Certain library calls synchronize with other library calls performed by another thread. For example, an atomic store-release synchronizes with a load-acquire that takes its value from the store (29.3). [ Note: Except in the specified cases, reading a later value does not necessarily ensure visibility as described below. Such a requirement would sometimes interfere with efficient implementation. — end note ]"
+
 In other words, if one thread writes to m_data[0], and sets m_tail_2 to 1, and another thread writes to m_data[1], and sets m_tail_2 to 2, then if a reader thread observes m_tail_2 as 2, it is only guaranteed to see the data in m_data[1], not m_data[0].
 {{<asset_img "/images/ditching_the_mutex/img_017.png">}}
 

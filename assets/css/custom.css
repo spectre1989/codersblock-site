@@ -14,8 +14,15 @@ article.main > div.content * {
     color: #cbe6cb;
 }
 
-article.main > div.content p {
+article.main > div.content p, article.main > div.content ul {
     text-align: left;
+    margin-left: 5%;
+    margin-right: 20%;
+}
+
+article.main > div.content > div.codeblock {
+    margin-left: 2.5%;
+    margin-right: 17.5%;
 }
 
 article.main > div.content > div.codeblock * {
