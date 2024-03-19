@@ -87,3 +87,18 @@ div.chroma {
     font-size: 80%;
     line-height: normal;
 }
+
+aside.sidebar {
+    overflow-y: auto;
+}
+
+aside.sidebar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: rgb(95, 94, 94);
+}
+
+aside.sidebar::-webkit-scrollbar-thumb {
+    background: rgb(139, 139, 139);
+    border-radius: 10pt;
+}
