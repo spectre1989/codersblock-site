@@ -116,5 +116,3 @@ I've upped these buffers to be 1MiB which I expect will be sufficient, but it's 
 
 ### Non-Unity Builds
 Although I like to use Unity builds (bundling multiple cpp files into a single translation unit), plenty of people don't. So it'd probably be a good idea if it was possible to compile the project as individual cpp files too. I probably won't remember to do this all the time, but I'll check and fix issues periodically.
-
-That's it, to be continued...

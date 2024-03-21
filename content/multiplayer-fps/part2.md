@@ -293,4 +293,4 @@ Back to the code that goes at the end of the loop:
 ```
 Notice that sleep is only called if the call to timeBeginPeriod actually succeeded earlier, if for some reason it failed then we'll just have to spin in the loop. When calculating how many milliseconds to sleep for, if we have 1.99 milliseconds left until the next tick begins, then we only sleep for 1 millisecond, and then spin for the remaining 0.99. This is why the calculation of time_to_wait_ms is truncated rather than rounded.
 
-And that's it! To be continued...
+And that's it!

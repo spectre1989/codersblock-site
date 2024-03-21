@@ -40,9 +40,7 @@ article.main > div.content > div.codeblock table {
 }
 
 article.main > div.content strong {
-    font-weight: bold;
     font-size: 100%;
-    font-style: italic;
     color: #cbe6cb;
 }
 
@@ -101,4 +99,23 @@ aside.sidebar::-webkit-scrollbar {
 aside.sidebar::-webkit-scrollbar-thumb {
     background: rgb(139, 139, 139);
     border-radius: 10pt;
+}
+
+li {
+    list-style-type:none;
+}
+
+li:before { 
+    content: '\2022';
+    padding-right: 10px;
+    margin-left: -40px;
+    min-width: 40px;
+    text-align: right;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+span.katex {
+    font-size: 16.5px;
+    line-height: 16px;
 }

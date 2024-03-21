@@ -271,4 +271,4 @@ for( uint16 i = 0; i < MAX_CLIENTS; ++i )
    }
 }
 ```
-So without too much work, we have a server which supports multiple users. To be continued...
+So without too much work, we have a server which supports multiple users.

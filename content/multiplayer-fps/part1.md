@@ -183,5 +183,3 @@ if( sendto( sock, message, strlen( message ), flags, (SOCKADDR*)&server_address,
 So we just grab an input message from the user with gets_s, and send it to the server, and then exit. The server will display that message, and then exit. Not much of a game yet, but as Karl Pilkington once said - "every step starts with a step, or whatever".
 
 To compile I just have two batch files, one called 'shell', and another called 'build'. I start up a new instance of command prompt in the Odin directory, run shell (which runs my Visual Studio installation's vcvarsall), and then run 'build' (which directly uses cl to compile my cpp files). I've been watching Casey Muratori's excellent Handmade Hero series for a little while now, I've been influenced somewhat by his way of doing things - these batch files are an example of that. If you want to just create a Visual Studio solution then that's cool, whatever works for you.
-
-That's all for now, to be continued...

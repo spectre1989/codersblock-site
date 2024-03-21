@@ -242,4 +242,4 @@ for (int i = 0; i < num_players; ++i)
    }
 } 
 ```
-That's it for now for client-side prediction, though I'll certainly return to this to tighten a few things up. To be continued, enjoy 2018 everyone.
+That's it for now for client-side prediction, though I'll certainly return to this to tighten a few things up. Enjoy 2018 everyone.

@@ -305,4 +305,4 @@ Then pass the updated vertices to the graphics system to update and draw, and fi
 
 Just before the application exits, the client sends a message to the server to say we're going. If we don't send this, the server will time us out after some time, but it's preferable to notify the server properly so the slot that was allocated to this client can be re-used immediately.
 
-This part doesn't feel like much of an improvement, just rebuilding what we already had. However, it's a necessary step for things we'll want to do later. To be continued...
+This part doesn't feel like much of an improvement, just rebuilding what we already had. However, it's a necessary step for things we'll want to do later.

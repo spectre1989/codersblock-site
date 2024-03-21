@@ -150,5 +150,3 @@ send_input_msg(
 You could be forgiven for thinking that for preventing cheating you should not send raw pitch and yaw, and instead send deltas from the previous pitch and yaw. This is a waste of time, anyone aim-botting etc will be able to figure out sending deltas, while you run the risk of legitimate players having their pitch/yaw get out of sync with the server because of a burst of packet loss or a bug.
 
 That’s about it for the re-working of client-side prediction. It’s still not finished of course, we need to deal with packet loss, jitter, potential malicious packets, cheating, and probably more. It’s enough for now to move forward.
-
-To be continued…
