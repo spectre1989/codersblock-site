@@ -11,7 +11,7 @@ trustedMath = true
 In the previous part of the series I mostly did some miscellaneous cleanup. This part unfortunately has no netcode whatsoever - it’s all about graphics ([browse code here, it’s not pretty](https://github.com/spectre1989/odin/tree/87247f5f0fd5acd86873e3f3bc8524fcafeced46)).
 
 ### "You’re Not A Graphics Programmer, Stupid"
-I’m no graphics guy, but I’m hoping I can still make an acceptable renderer. I’m trying to take a from-scratch approach with this thing, and graphics will be no exception. This means I need to derive the most basic building blocks like projection and transformation matrices, armed only with my B grade in A-Level maths from more than a decade ago. Though you don’t ever really need to do this sort of thing these days, it’s still (in my view) an interesting and worthwhile exercise.
+I’m no graphics guy, but I’m hoping I can still make an acceptable renderer. I’m trying to take a from-scratch approach with this thing, and graphics will be no exception. This means I need to derive the most basic building blocks like projection and transformation matrices, armed only with my B grade in A-Level maths from more than a decade ago. Though you don’t ever really _need_ to do this sort of thing these days, it’s still (in my view) an interesting and worthwhile exercise.
 
 ### The Coordinate System
 Firstly I need to pick a coordinate system. For some reason, I always liked positive X-axis right, positive Y-axis up, and positive Z-axis forwards. I really have no idea why, but I found this tweet which nicely sums up the different coordinate systems and which engines/programs use which:

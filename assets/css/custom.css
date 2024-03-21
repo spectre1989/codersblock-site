@@ -16,13 +16,6 @@ article.main > div.content * {
 
 article.main > div.content p, article.main > div.content ul {
     text-align: left;
-    margin-left: 5%;
-    margin-right: 20%;
-}
-
-article.main > div.content > div.codeblock {
-    margin-left: 2.5%;
-    margin-right: 17.5%;
 }
 
 article.main > div.content > div.codeblock * {
@@ -30,9 +23,10 @@ article.main > div.content > div.codeblock * {
 }
 
 article.main > div.content img {
-    margin-left: 17.5%;
-    margin-right: 17.5%;
-    width: 65%;
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 25px 0;
+    display: block;
 }
 
 article.main > div.content > div.codeblock table {
@@ -62,11 +56,35 @@ article.main > div.title > h1.title-header {
     font-size: 28px;
 }
 
+article.main > div.content h3 {
+    color: #e6e6e6;
+    font-weight: 400;
+    font-size: 17.25px;
+}
+
 article.main > div.content code:not(div.highlight code) {
     background-color: #363636;
 }
 
+div.breadcumb {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+article.main > div.title > h1 {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+article.main > div.content p {
+    margin-bottom: 28px;
+    margin-top: 28px;
+}
+
 article.main > div.content {
+    max-width: 800px;
+    margin: 0 auto;
     .o { color: #569CD6; }
     .n { color: #D4D4D4; }
     .k { color: #C586C0 }
@@ -88,6 +106,7 @@ div.chroma {
 
 aside.sidebar {
     overflow-y: auto;
+    font-size: 14px;
 }
 
 aside.sidebar::-webkit-scrollbar {
@@ -101,11 +120,11 @@ aside.sidebar::-webkit-scrollbar-thumb {
     border-radius: 10pt;
 }
 
-li {
+article.main div.content li {
     list-style-type:none;
 }
 
-li:before { 
+article.main div.content li:before { 
     content: '\2022';
     padding-right: 10px;
     margin-left: -40px;
