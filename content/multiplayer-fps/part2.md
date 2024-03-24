@@ -14,7 +14,7 @@ Back in the day when multiplayer games were only played on a LAN, the clients wo
 For now, I'll be doing LAN-style netcode - don't worry, it shouldn't remain like this for long, but it'll help simplify things at this early stage.
 
 ### Starting Slow
-I started with a text adventure-ish input loop, browse the repository at this commit here. This is how the server now begins (I won't include the code for creating and binding the socket from before):
+I started with a text adventure-ish input loop, browse the repository at this commit [here](https://github.com/spectre1989/odin/tree/c10d34fc1ce3dc523e62e1f4f47b928a42e879cb). This is how the server now begins (I won't include the code for creating and binding the socket from before):
 ```cpp
 int8 buffer[SOCKET_BUFFER_SIZE];
 int32 player_x = 0;
@@ -35,9 +35,9 @@ while( is_running )
       break;
    }
 ```
-The first thing I'll point out is how at this point I started using typedefs like int32, I just like to show exactly how many bits are being used for basic types, and I don't like writing unsigned int, I far prefer uint32. Generally my style is to use these typedefs for all game code, but when I'm using Windows API functions I use whichever silly types they specify in the documentation on MSDN, e.g. UINT, DWORD, etc.
+The first thing I'll point out is how at this point I started using typedefs like `int32`, I just like to show exactly how many bits are being used for basic types, and I don't like writing `unsigned int`, I far prefer `uint32`. Generally my style is to use these typedefs for all game code, but when I'm using Windows API functions I use whichever silly types they specify in the documentation on MSDN, e.g. `UINT`, `DWORD`, etc.
 
-The recvfrom is essentially the same as before, but now this will be called in a loop. The only actual game state at this stage is the player x and y values, so they live outside the loop. On to processing the client packet:
+The `recvfrom` is essentially the same as before, but now this will be called in a loop. The only actual game state at this stage is the player x and y values, so they live outside the loop. On to processing the client packet:
 ```cpp
 // process input
 char client_input = buffer[0];
@@ -93,7 +93,7 @@ if( sendto( sock, buffer, buffer_length, flags, to, to_length ) == SOCKET_ERROR 
    return;
 }
 ```
-The game state is copied into the buffer using memcpy, and sent like we saw last time with sendto. Now for the client:
+The game state is copied into the buffer using `memcpy`, and sent like we saw last time with `sendto`. Now for the client:
 ```cpp
 int8 buffer[SOCKET_BUFFER_SIZE];
 int32 player_x;
@@ -117,7 +117,7 @@ while( is_running )
       return;
    }
 ```
-Input is collected from the console using scanf_s, straight in to the buffer, and that single byte is sent the same way as before with sendto.
+Input is collected from the console using `scanf_s`, straight in to the buffer, and that single byte is sent the same way as before with `sendto`.
 ```cpp
    // wait for reply
    flags = 0;
@@ -147,8 +147,8 @@ Input is collected from the console using scanf_s, straight in to the buffer, an
 ```
 The client waits for the state packet, unpacks it, and displays the result in the console, before continuing for the next iteration of the loop.
 
-Speeding Up
-This is all well and good so far, but I want my game to be real-time, which will require the loop to run many times per second. The client is also going to have to cease being a console application. Given that the server is the focus of this project, for now I'll use Unity to throw something together quickly and easily. The code for the client will be included in the repository, but I won't go through it here, it's all very simple though. Here are the changes I made to the server, browse the repository at this commit here.
+### Speeding Up
+This is all well and good so far, but I want my game to be real-time, which will require the loop to run many times per second. The client is also going to have to cease being a console application. Given that the server is the focus of this project, for now I'll use Unity to throw something together quickly and easily. The code for the client will be included in the repository, but I won't go through it here, it's all very simple though. Here are the changes I made to the server, browse the repository at this commit [here](https://github.com/spectre1989/odin/tree/155a877644a1c846297af589087085835feed2df).
 ```cpp
 int8 buffer[SOCKET_BUFFER_SIZE];
 float32 player_x = 0.0f;
@@ -160,7 +160,7 @@ bool32 is_running = 1;
 while( is_running )
 {
 ```
-I thought I'd make the player object some kind of vehicle, so some extra game state will be needed. As before there'll be player_x and player_y, but now there'll be player_facing. This needs only be a single float32 to describe their rotation, as they will only rotate around the z-axis. Finally there's player_speed, this is how fast they move in whatever direction they're facing.
+I thought I'd make the player object some kind of vehicle, so some extra game state will be needed. As before there'll be `player_x` and `player_y`, but now there'll be `player_facing`. This needs only be a single `float32` to describe their rotation, as they will only rotate around the z-axis. Finally there's `player_speed`, this is how fast they move in whatever direction they're facing.
 
 The player will push the w/s keys to speed up and slow down, and a/d keys to turn. Client input is received by the server in the same manner as before, but we'll pick up at the point where the input is processed:
 ```cpp
@@ -211,36 +211,36 @@ Unlike the previous iteration, the player can now press multiple keys at once, s
 ```
 Finally the state packet is written, this time incorporating the player facing as well.
 
-Fixing The Tick Rate
+### Fixing The Tick Rate
 Currently the server is not measuring the time between loop iterations, so the simulation speed will be different depending on the hardware it's run on, so I'll fix the tick rate to 60hz.
 
-What we'll do is, measure the time that each tick takes, and then wait until it's time to start the next tick. We could just spin in a loop until that time is up, but that'll waste a lot of processing power. We'll put our thread to sleep using the sleep function:
+What we'll do is, measure the time that each tick takes, and then wait until it's time to start the next tick. We could just spin in a loop until that time is up, but that'll waste a lot of processing power. We'll put our thread to sleep using the `sleep` function:
 ```cpp
 VOID WINAPI Sleep(
   _In_ DWORD dwMilliseconds
 );
 ```
-This has two problems though, firstly we can only specify the time to sleep in milliseconds, so we'll have to spin in a loop for any time which is less than a millisecond. Secondly, the windows scheduler itself might only check to see if it needs to wake up our thread once every ten milliseconds. For this reason, we'll have to attempt to set the granularity of the scheduler using timeBeginPeriod:
+This has two problems though, firstly we can only specify the time to sleep in milliseconds, so we'll have to spin in a loop for any time which is less than a millisecond. Secondly, the windows scheduler itself might only check to see if it needs to wake up our thread once every ten milliseconds. For this reason, we'll have to attempt to set the granularity of the scheduler using `timeBeginPeriod`:
 ```cpp
 MMRESULT timeBeginPeriod(
    UINT uPeriod
 );
 ```
-Note - the documentation on MSDN says "You must match each call to timeBeginPeriod with a call to timeEndPeriod", as is often the case with MSDN this is not true! Windows will clean this up for you after the application exits, you only need to call timeEndPeriod if you no longer need the granularity, but your program will continue running.
+Note - the documentation on MSDN says "You must match each call to timeBeginPeriod with a call to timeEndPeriod", as is often the case with MSDN [this is not true](https://randomascii.wordpress.com/2013/07/08/windows-timer-resolution-megawatts-wasted/)! Windows will clean this up for you after the application exits, you only need to call `timeEndPeriod` if you no longer need the granularity, but your program will continue running.
 
-We can record a timestamp using the Windows API function QueryPerformanceCounter: 
+We can record a timestamp using the Windows API function `QueryPerformanceCounter`: 
 ```cpp
 BOOL WINAPI QueryPerformanceCounter(
   _Out_ LARGE_INTEGER *lpPerformanceCount
 );
 ```
-This returns a measurement of time, but that measurement is not known at compile time (e.g. microseconds, nanoseconds etc). To convert it to some denomination of seconds, we need to also call QueryPerformanceFrequency, which will tell us how many counts there are per second:
+This returns a measurement of time, but that measurement is not known at compile time (e.g. microseconds, nanoseconds etc). To convert it to some denomination of seconds, we need to also call `QueryPerformanceFrequency`, which will tell us how many counts there are per second:
 ```cpp
 BOOL WINAPI QueryPerformanceFrequency(
   _Out_ LARGE_INTEGER *lpFrequency
 );
 ```
-You can browse the code at the relevant commit here, I started with the following code before the server loop begins:
+You can browse the code at the relevant commit [here](https://github.com/spectre1989/odin/tree/c0d1581870d996425257411fb8e2bc35eac894e9), I started with the following code before the server loop begins:
 ```cpp
 UINT sleep_granularity_ms = 1;
 bool32 sleep_granularity_was_set = timeBeginPeriod( sleep_granularity_ms ) == TIMERR_NOERROR;
@@ -291,6 +291,6 @@ Back to the code that goes at the end of the loop:
       time_taken_s = time_since( tick_start_time, clock_frequency );
    }
 ```
-Notice that sleep is only called if the call to timeBeginPeriod actually succeeded earlier, if for some reason it failed then we'll just have to spin in the loop. When calculating how many milliseconds to sleep for, if we have 1.99 milliseconds left until the next tick begins, then we only sleep for 1 millisecond, and then spin for the remaining 0.99. This is why the calculation of time_to_wait_ms is truncated rather than rounded.
+Notice that sleep is only called if the call to `timeBeginPeriod` actually succeeded earlier, if for some reason it failed then we'll just have to spin in the loop. When calculating how many milliseconds to sleep for, if we have 1.99 milliseconds left until the next tick begins, then we only sleep for 1 millisecond, and then spin for the remaining 0.99. This is why the calculation of `time_to_wait_ms` is truncated rather than rounded.
 
 And that's it!

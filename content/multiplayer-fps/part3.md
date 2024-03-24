@@ -6,9 +6,9 @@ aliases = ["/blog/multiplayer-fps-part-3"]
 includeToc = false
 +++
 
-In the previous part of this series we ended up with a basic outline of an online game with some very simple game logic, a fixed tick rate, and support for a single connected client. In this part, we'll be adding support for multiple clients. You can see the repository as it was at this stage of development here.
+In the previous part of this series we ended up with a basic outline of an online game with some very simple game logic, a fixed tick rate, and support for a single connected client. In this part, we'll be adding support for multiple clients. You can see the repository as it was at this stage of development [here](https://github.com/spectre1989/odin/tree/5fd76d229bef8cbd8c78bf75cb4991a1ad940bdf).
 
-The first thing we'll need is to actually keep track of the clients who send the server packets. At the moment we store their IP address and port we get from recvfrom, but now we'll need some kind of list of IP addresses and ports of the clients so they can be sent state packets en masse. For this I created an IP_Endpoint struct:
+The first thing we'll need is to actually keep track of the clients who send the server packets. At the moment we store their IP address and port we get from `recvfrom`, but now we'll need some kind of list of IP addresses and ports of the clients so they can be sent state packets en masse. For this I created an `IP_Endpoint` struct:
 ```cpp
 struct IP_Endpoint
 {
@@ -16,35 +16,31 @@ struct IP_Endpoint
    uint16 port;
 };
 ```
-Then we need an array of them - the size of which dependent upon game design, for now I'm using 32, but I'll store it in a const so it's easily changeable. Now that we're having multiple players, we'll also need their x, y, facing, and speed values which make up their state. I'll group those in a Player_State struct:
+Then we need an array of them - the size of which dependent upon game design, for now I'm using 32, but I'll store it in a const so it's easily changeable. Now that we're having multiple players, we'll also need their `x`, `y`, `facing`, and `speed` values which make up their state. I'll group those in a `Player_State` struct:
 ```cpp
 struct Player_State
 {
    float32 x, y, facing, speed;
 };
 ```
-Currently our code waits for user input before executing the next tick, but this won't work for multiple users (even on a LAN if we have enough users). Eventually clients will deliver input packets slightly ahead of the tick they are needed for, but for now we'll just store whatever the most recent input was for each player. Then on each tick we blast through all of them, updating each Player_State struct accordingly. So for that reason I created a Player_Input struct:
+Currently our code waits for user input before executing the next tick, but this won't work for multiple users (even on a LAN if we have enough users). Eventually clients will deliver input packets slightly ahead of the tick they are needed for, but for now we'll just store whatever the most recent input was for each player. Then on each tick we blast through all of them, updating each `Player_State` struct accordingly. So for that reason I created a `Player_Input` struct:
 ```cpp
 struct Player_Input
 {
    bool32 up, down, left, right;
 };
 ```
-But we have a problem - when a player sends us a packet, how do we know if they've sent us a packet before? We could search through the array of IP_Endpoints for their address and port, this would probably be OK for a game with a relatively small number of players on each server, but for something like an MMO it would negatively affect performance.
+But we have a problem - when a player sends us a packet, how do we know if they've sent us a packet before? We could search through the array of `IP_Endpoint`s for their address and port, this would probably be OK for a game with a relatively small number of players on each server, but for something like an MMO it would negatively affect performance.
 
-An easy way to solve this is to assign each player a unique identifier when they join the server, which is actually an index into an array. Any packet sent from the client to the server must include this ID, the server can then check that the address and port that the packet came from, matches those in the IP_Endpoint array (otherwise a player could pretend to be someone else by sending a different ID).
+An easy way to solve this is to assign each player a unique identifier when they join the server, which is actually an index into an array. Any packet sent from the client to the server must include this ID, the server can then check that the address and port that the packet came from, matches those in the `IP_Endpoint` array (otherwise a player could pretend to be someone else by sending a different ID).
 
 For this, we'll now need to start having multiple packet types. Previously, every packet from the client to the server contained user input, and every packet from the server to the client contained game state. That will no longer be the case, we'll need packets for the following:
 
-client joining server (requesting ID)
-
-server telling client their ID
-
-client leaving server (a timeout would do, but this is better)
-
-client sending user input to server
-
-server sending game state to client
+* client joining server (requesting ID)
+* server telling client their ID
+* client leaving server (a timeout would do, but this is better)
+* client sending user input to server
+* server sending game state to client
 
 Every packet will have to start with a number describing the type of packet it is, for now this needs only be one byte as we have less than 256 packet types. I'll use an enum for this, or rather, two enums - one for client messages, and one for server messages:
 ```cpp
@@ -61,6 +57,10 @@ enum class Server_Message : uint8
    State       // tell client game state
 };
 ```
+
+{{<asset_img "/images/mpfps_03/img001.png">}}
+<sub>Packet structure (top: client -> server, bottom: server -> client)</sub>
+
 Having a message telling the server that the client is leaving is a good idea, but what happens if the client crashes? We'll need a simple timeout system. Clients will always be sending a steady stream of input packets, so we'll just have a per-client counter which is incremented every tick, and reset back to zero when an input packet is received. This will tell us how long it's been since we've heard from that client. 
 
 So now, just before entering the main loop on the server, we'll have these arrays:
@@ -70,12 +70,12 @@ So now, just before entering the main loop on the server, we'll have these array
    Player_State client_objects[MAX_CLIENTS];
    Player_Input client_inputs[MAX_CLIENTS];
 ```
-When we only supported one client, the server would wait for input from the client before carrying on with the tick. Part of the reason for this is that recvfrom is a blocking function, it won't return until a packet is received. We don't want our server to ever wait like this, so we could call recvfrom on a different thread, but an easier method which will do fine for now is to switch the socket to non-blocking mode, like this:
+When we only supported one client, the server would wait for input from the client before carrying on with the tick. Part of the reason for this is that `recvfrom` is a blocking function, it won't return until a packet is received. We don't want our server to ever wait like this, so we could call `recvfrom` on a different thread, but an easier method which will do fine for now is to switch the socket to non-blocking mode, like this:
 ```cpp
 u_long enabled = 1;
 ioctlsocket( sock, FIONBIO, &enabled );
 ```
-Any calls to recvfrom made when there are no packets to consume, will return SOCKET_ERROR, and WSAGetLastError will return WSAEWOULDBLOCK. So now on each tick, we just call recvfrom until is returns SOCKET_ERROR, and then get on with updating the game state and sending it back to the clients:
+Any calls to `recvfrom` made when there are no packets to consume, will return `SOCKET_ERROR`, and `WSAGetLastError` will return `WSAEWOULDBLOCK`. So now on each tick, we just call `recvfrom` until it returns `SOCKET_ERROR`, and then get on with updating the game state and sending it back to the clients:
 ```cpp
 while( true )
 {
@@ -121,7 +121,7 @@ while( true )
    }
 }
 ```
-The case for Client_Message::Join looks like this:
+The case for `Client_Message::Join` looks like this:
 ```cpp
 uint16 slot = uint16( -1 );
 for( uint16 i = 0; i < MAX_CLIENTS; ++i )
@@ -156,9 +156,9 @@ else
    sendto( sock, buffer, 2, flags, (SOCKADDR*)&from, from_size );
 }
 ```
-First we look for an empty slot, this is determined by finding an IP_Endpoint in the array with an address of 0 (these are zero-initialised during startup, and set to 0 when a client leaves or times out). If an available slot is found, then this is used for the client ID. A Join_Result message is sent back to the client, the second byte of the packet indicates whether joining was successful, and if so, the assigned client ID follows. For now I'm using a 16-bit unsigned integer - I figure for development purposes we're unlikely to need more than ~65000 client IDs. If the slot was found, we store the IP_Endpoint in the array, and zero-initialise their Player_State and Player_Input.
+First we look for an empty slot, this is determined by finding an `IP_Endpoint` in the array with an address of 0 (these are zero-initialised during startup, and set to 0 when a client leaves or times out). If an available slot is found, then this is used for the client ID. A `Join_Result` message is sent back to the client, the second byte of the packet indicates whether joining was successful, and if so, the assigned client ID follows. For now I'm using a 16-bit unsigned integer - I figure for development purposes we're unlikely to need more than ~65000 client IDs. If the slot was found, we store the `IP_Endpoint` in the array, and zero-initialise their `Player_State` and `Player_Input`.
 
-The case for Client_Message::Leave just zeroes the IP_Endpoint for that client:
+The case for `Client_Message::Leave` just zeroes the `IP_Endpoint` for that client:
 ```cpp
 uint16 slot;
 memcpy( &slot, &buffer[1], 2 );
@@ -168,7 +168,7 @@ if( client_endpoints[slot] == from_endpoint )
    client_endpoints[slot] = {};
 }
 ```
-Finally the case for Client_Message::Input grabs the user input (this time in the fourth byte of the packet) and does some bitwise operations to convert back into individual key presses:
+Finally the case for `Client_Message::Input` grabs the user input (this time in the fourth byte of the packet) and does some bitwise operations to convert back into individual key presses:
 ```cpp
 uint16 slot;
 memcpy( &slot, &buffer[1], 2 );
@@ -227,7 +227,7 @@ for( uint16 i = 0; i < MAX_CLIENTS; ++i )
    }
 }
 ```
-We iterate over each IP_Endpoint and for those which are in use, update their Player_State based on their current Player_Input. Clients timing-out is also handled here. There is a minor issue here that we iterate over the entire IP_Endpoint array, including all of those which aren't in use. Not to worry, I will deal with this at a later date.
+We iterate over each `IP_Endpoint` and for those which are in use, update their `Player_State` based on their current `Player_Input`. Clients timing-out is also handled here. There is a minor issue here that we iterate over the entire `IP_Endpoint` array, including all of those which aren't in use. Not to worry, I will deal with this at a later date.
 
 Then the actual state packet is created. For now, everyone gets sent the same game state packet. It's possible that some games benefit from different players being sent different subsets of the game state, e.g. for anti-cheat reasons, or because the entire game state is huge (tangent - this is why I'm always skeptical of off-the-shelf networking systems, different games have different networking requirements):
 ```cpp

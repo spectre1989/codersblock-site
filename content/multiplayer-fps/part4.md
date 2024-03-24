@@ -6,13 +6,13 @@ aliases = ["/blog/multiplayer-fps-part-4"]
 includeToc = false
 +++
 
-In the previous part of this series we had an outline of an online game with a fixed tick rate, and support for multiple clients to connect and move around. In this part we bin the horrible client made in Unity, and implement one in C++. You can browse the repository at this stage of development here.
+In the previous part of this series we had an outline of an online game with a fixed tick rate, and support for multiple clients to connect and move around. In this part we bin the horrible client made in Unity, and implement one in C++. You can browse the repository at this stage of development [here](https://github.com/spectre1989/odin/tree/8395cc31bb211a39b2c9553c2728b3c8f06f7934).
 
 The reason I want to rebuild the client in C++ is that for upcoming work on client-side prediction, we'll need the server and client to have a certain amount of shared code. It's possible to re-implement this shared code in C# for the client, but it would be easier to maintain if we just had one codebase written in C++. Plus I just prefer doing stuff in C++, so there.
 
-Unlike the server, the client will need to show visual stuff, which means it'll need to be a windowed application. I'm not a fan of making things by plumbing together a bunch of frameworks, and opening a window is actually deceptively simple. I won't go in to details here, there are plenty of guides out there for opening a window, I recommend the first few days of Casey Muratori's Handmade Hero series.
+Unlike the server, the client will need to show visual stuff, which means it'll need to be a windowed application. I'm not a fan of making things by plumbing together a bunch of frameworks, and opening a window is actually deceptively simple. I won't go in to details here, there are plenty of guides out there for opening a window, I recommend the [first few days](https://hero.handmade.network/episode/code/day001) of Casey Muratori's Handmade Hero series.
 
-The other thing we'll need for 'visual stuff' is a way of getting our 'stuff' on screen. I'm intending for this to be a 3D game of some sort, so we'll need a way of displaying 3D graphics. Again, there are a lot of frameworks out there, but I have yet to find one I really like. So I'll be using Vulkan, a relatively new low-overhead, cross-platform (my main reason for choosing it over DirectX 12) graphics API. The code for this lives in client_graphics.cpp, I won't go in to detail about this (it's not really the point of this series), if you want to learn about Vulkan then I'd recommend looking at some of these learning resources.
+The other thing we'll need for 'visual stuff' is a way of getting our 'stuff' on screen. I'm intending for this to be a 3D game of some sort, so we'll need a way of displaying 3D graphics. Again, there are a lot of frameworks out there, but I have yet to find one I really like. So I'll be using Vulkan, a relatively new low-overhead, cross-platform (my main reason for choosing it over DirectX 12) graphics API. The code for this lives in client_graphics.cpp, I won't go in to detail about this (it's not really the point of this series), if you want to learn about Vulkan then I'd recommend looking at some of [these learning resources](https://github.com/KhronosGroup/Khronosdotorg/blob/master/api/vulkan/resources.md).
 
 So, I'll start from client.cpp line 105, this is where the windows set up stuff ends. We start with initialising the state we need for graphics. For the Unity client, each player was represented by a capsule, for this new client each player is represented by a rectangle (no actual 3D yet, that's a job for future Joe). For now I've implemented this with a single vertex buffer with 4 vertices per player to form each rectangle, each frame the vertices are updated and drawn.
 ```cpp
@@ -136,6 +136,10 @@ if (!Net::socket_send(&sock, buffer, 1, &server_endpoint))
    return 0;
 }
 ```
+
+{{<asset_img "/images/mpfps_04/img001.png">}}
+<sub>Client_Message::Join packet layout</sub>
+
 This is the buffer we'll use for reading/writing packets. The first thing to do is tell the server we want to join.
 ```cpp
 struct Player_State
@@ -196,6 +200,11 @@ This loop will keep grabbing packets from the socket for as long as there are an
          break;
 ```
 
+{{<asset_img "/images/mpfps_04/img002.png">}}
+<sub>Server_Message::Join_Result packet layout on failure</sub>
+{{<asset_img "/images/mpfps_04/img003.png">}}
+<sub>Server_Message::Join_Result packet layout on success</sub>
+
 See server.cpp for corresponding code where this message is sent. The first byte is a 0 or 1 indicating whether we were allowed to join. If that byte is 1, then the next 2 bytes are a uint16 for our slot.
 ```cpp
          case Server_Message::State:
@@ -229,6 +238,9 @@ See server.cpp for corresponding code where this message is sent. The first byte
          break;
 ```
 
+{{<asset_img "/images/mpfps_04/img004.png">}}
+<sub>Server_Message::State packet layout</sub>
+
 A state packet contains all the player objects, so we just read until we run out of bytes. The server sends the slot (called id here) which we currently don't use, in future we will use this field to figure out which object the player actually owns.
 ```cpp
       }
@@ -256,6 +268,9 @@ A state packet contains all the player objects, so we just read until we run out
       }         
    }
 ```
+
+{{<asset_img "/images/mpfps_04/img005.png">}}
+<sub>Client_Message::Input packet layout</sub>
 
 Each tick we send our input. When key events are sent to the window, relevant information is stored in this global g_input struct. This packet just has the four buttons encoded in a bitfield.
 ```cpp
@@ -302,6 +317,9 @@ Then pass the updated vertices to the graphics system to update and draw, and fi
    memcpy(&buffer[bytes_written], &slot, sizeof(slot));
    Net::socket_send(&sock, buffer, bytes_written, &server_endpoint);
 ```
+
+{{<asset_img "/images/mpfps_04/img006.png">}}
+<sub>Client_Message::Leave packet layout</sub>
 
 Just before the application exits, the client sends a message to the server to say we're going. If we don't send this, the server will time us out after some time, but it's preferable to notify the server properly so the slot that was allocated to this client can be re-used immediately.
 

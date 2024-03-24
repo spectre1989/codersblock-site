@@ -6,17 +6,17 @@ aliases = ["/blog/multiplayer-fps-part-5"]
 includeToc = false
 +++
 
-In the previous part of the series, we rebuilt the game client in C++. Now we crack on with the real reason we bothered to do that - client-side prediction. Currently the "game" only really works with close to no latency (i.e. client and server running on the same machine or network). Now is the time to introduce some artificial lag, dealing with that lag is really where netcode gets interesting.
+In the previous part of the series, we rebuilt the game client in C++. Now we crack on with the real reason we bothered to do that - ***client-side prediction***. Currently the "game" only really works with close to no latency (i.e. client and server running on the same machine or network). Now is the time to introduce some artificial lag, *dealing* with that lag is really where netcode gets interesting.
 
 In the real world, packets sent over the internet are unpredictable. Sometimes they don't arrive at all (packet loss), sometimes they do arrive, and sometimes they can even be duplicated and arrive multiple times (though I've never detected this actually happening, but it's important to know that it is possible and should probably be guarded against).
 
-Latency is also unpredictable, multiple packets from one machine to another do not necessarily (and in my experience, rarely) take the same amount of time to travel from A to B. This is referred to as jitter. Even when network conditions are stable, in a short space of time (a couple of seconds, say) there can be quite a difference between the quickest and slowest packet. This can result in packets arriving in a different order from which they were sent, or arriving in clumps.
+Latency is also unpredictable, multiple packets from one machine to another do not necessarily (and in my experience, *rarely*) take the same amount of time to travel from A to B. This is referred to as jitter. Even when network conditions are stable, in a short space of time (a couple of seconds, say) there can be quite a difference between the quickest and slowest packet. This can result in packets arriving in a different order from which they were sent, or arriving in clumps.
 
-For now the fake lag I'll introduce is very rudimentary - there'll be predictable artificial latency added, but no packet loss or jitter just yet, though in time they'll be needed too. For now this is very simple, incoming/outgoing packets enter a buffer and stay there for however long the fake lag period is - I've gone for a fairly absurd 200ms in both directions, so a 400ms round-trip time (RTT). Once this delay has expired, they can be retrieved with a call to socket_receive in the case of incoming packets, and outgoing packets are sent via the underlying Winsock socket.
+For now the fake lag I'll introduce is very rudimentary - there'll be predictable artificial latency added, but no packet loss or jitter just yet, though in time they'll be needed too. For now this is very simple, incoming/outgoing packets enter a buffer and stay there for however long the fake lag period is - I've gone for a fairly absurd 200ms in both directions, so a 400ms round-trip time (RTT). Once this delay has expired, they can be retrieved with a call to `socket_receive` in the case of incoming packets, and outgoing packets are sent via the underlying Winsock socket.
 
-(You can see the code roughly where it was for this post here, though there was a fair amount of overlap with the next article)
+(You can see the code roughly where it was for this post [here](https://github.com/spectre1989/odin/tree/28261d9e6d68385647efade2dbd5837d06faf055), though there was a fair amount of overlap with the next article)
 
-The way I've implemented this is to use the preprocessor symbol FAKE_LAG to insert extra code into builds which need the feature. In those builds, the original Socket struct (and all of the functions for manipulating it) is wrapped in a namespace called Internal, then another Socket struct is added which contains an Internal::Socket, along with buffers for sent and received packets. There's also a set of functions to work with them which match the interface of those for Socket, so it's just a case of turning fake lag on or off and it should just work without having to change anything else.
+The way I've implemented this is to use the preprocessor symbol `FAKE_LAG` to insert extra code into builds which need the feature. In those builds, the original `Socket` struct (and all of the functions for manipulating it) is wrapped in a namespace called `Internal`, then another Socket struct is added which contains an `Internal::Socket`, along with buffers for sent and received packets. There's also a set of functions to work with them which match the interface of those for Socket, so it's just a case of turning fake lag on or off and it should just work without having to change anything else.
 ```cpp
 #ifdef FAKE_LAG
 namespace Internal
@@ -97,30 +97,36 @@ Right now these are hardcoded in quite a rubbish way, but later this will be tid
 
 With this fake lag activated, input feels sluggish as you'd expect.
 
-Square colour indicates what input is currently being pressed: White - up (increase speed) Red - down (decrease speed/stop) Blue - nothing
-Square colour indicates what input is currently being pressed:
-White - up (increase speed)
-Red - down (decrease speed/stop)
-Blue - nothing
+{{<asset_img "/images/mpfps_05/anim001.gif">}}
+<sub>Square colour indicates what input is currently being pressed: White - up (increase speed) Red - down (decrease speed/stop) Blue - nothing\
+Square colour indicates what input is currently being pressed:\
+White - up (increase speed)\
+Red - down (decrease speed/stop)\
+Blue - nothing</sub>
 
-(The following section on handling of player inputs contains some mistakes, see here for corrections)
-Client-Side Prediction allows us to make input feel responsive, despite the lag. The client predicts the results of their input so the player sees the results instantly. They also maintain a historic buffer of inputs and their predicted results. When a state packet is received from the server, they compare the predicted results against the servers actual results. If the client's predicted results don't match, then a misprediction has occurred, and they replay the historic buffer from the corrected state, back up to the client's current predicted state. For the client to predict the results of their input, they need to run the same movement logic on the client as will run on the server - this is why it's helpful to have the server and client as part of a single codebase, hence rebuilding the client in C++ in the last part of the series.
+***(The following section on handling of player inputs contains some mistakes, see [here](part8.html) for corrections)***
+
+Client-Side Prediction allows us to make input feel responsive, despite the lag. The client *predicts* the results of their input so the player sees the results instantly. They also maintain a historic buffer of inputs and their predicted results. When a state packet is received from the server, they compare the predicted results against the servers actual results. If the client's predicted results don't match, then a ***misprediction*** has occurred, and they replay the historic buffer from the corrected state, back up to the client's current predicted state. For the client to predict the results of their input, they need to run the same movement logic on the client as will run on the server - this is why it's helpful to have the server and client as part of a single codebase, hence rebuilding the client in C++ in the last part of the series.
 
 This means that effectively the client has to predict forwards in time relative to the other players they are observing, and this amount of time is proportional to their latency. If the client has a round-trip time to the server of 10 ticks, then they must run at least 10 ticks ahead of their last received state from server (and 5 ticks ahead of where the server is now, because the packet will take 5 ticks to get there). I think of this as 3 timestreams:
 
-server time - the current time on the server (the client can only approximate what tick the server is currently on)
+* ***server time*** - the current time on the server (the client can only approximate what tick the server is currently on)
+* ***predicted time*** - the client's locally predicted time (server_time + (rtt * 0.5) + extra_for_jitter)
+* ***observed time*** - the stuff the client is observing rather than predicting (e.g. other players, AI characters, server-side physics objects, etc), and interpolates between snapshots of visual state (server_time - (rtt * 0.5) - extra_for_jitter_and_interpolation)
 
-predicted time - the client's locally predicted time (server_time + (rtt * 0.5) + extra_for_jitter)
+{{<asset_img "/images/mpfps_05/img001.png">}}
+<sub>The client is predicting 5 ticks ahead of the server.\
+They send input for tick 50, it reaches the server 5 ticks later.\
+The server sends a state packet for tick 50 back to the client, which arrives when the client is predicting to tick 60.</sub>
 
-observed time - the stuff the client is observing rather than predicting (e.g. other players, AI characters, server-side physics objects, etc), and interpolates between snapshots of visual state (server_time - (rtt * 0.5) - extra_for_jitter_and_interpolation)
+{{<asset_img "/images/mpfps_05/img002.png">}}
+<sub>The client has predicted up to tick 53.</sub>
 
-The client is predicting 5 ticks ahead of the server. They send input for tick 50, it reaches the server 5 ticks later. The server sends a state packet for tick 50 back to the client, which arrives when the client is predicting to tick 60.
-The client is predicting 5 ticks ahead of the server.
-They send input for tick 50, it reaches the server 5 ticks later.
-The server sends a state packet for tick 50 back to the client, which arrives when the client is predicting to tick 60.
+{{<asset_img "/images/mpfps_05/img003.png">}}
+<sub>A state packet is received from the server for tick 51, the client compares the local player state with what they predicted, they don't match, there has been a misprediction.</sub>
 
-A state packet is received from the server for tick 51, the client compares the local player state with what they predicted, they don't match, there has been a misprediction.
-A state packet is received from the server for tick 51, the client compares the local player state with what they predicted, they don't match, there has been a misprediction.
+{{<asset_img "/images/mpfps_05/img004.png">}}
+<sub>The client re-simulates the remaining predicted ticks.</sub>
 
 I've implemented the prediction history as another circular buffer. This buffer just needs to be big enough to allow for the highest round-trip time that we plan to support, I've set this at 2 seconds for now, which will allow for a round-trip time of almost 4 seconds - much bigger than we'd ever really need.
 ```cpp
@@ -198,19 +204,30 @@ if (prediction_history_size &&
    }
 }
 ```
-There's an important distinction to make with how you think of "state at tick n", and that is whether you consider it to be the state at the beginning or end of the tick. Either is valid, but you have to be consistent. I choose to think of it as the state at the beginning of the tick, and the input for that tick is the input which occurs during that tick. So Staten + Inputn = State(n+1).
+There's an important distinction to make with how you think of "state at tick n", and that is whether you consider it to be the state at the beginning or end of the tick. Either is valid, but you have to be consistent. I choose to think of it as the state at the beginning of the tick, and the input for that tick is the input which occurs during that tick. So State<sub>n</sub> + Input<sub>n</sub> = State<sub>n+1</sub>.
 
-Correcting a misprediction introduces a problem - the client only receives visual state - that's what a snapshot means when talking about Snapshot Interpolation network models. In order to get back in sync with the server after a misprediction, the client really needs all the state which is relevant to the prediction. In our case we're predicting movement, so velocity is needed. In an FPS game we'd need data related to shooting - what gun is the player holding, how many bullets do they have, when was the gun last fired, etc.
+Correcting a misprediction introduces a problem - the client only receives *visual* state - that's what a ***snapshot*** means when talking about ***Snapshot Interpolation*** network models. In order to get back in sync with the server after a misprediction, the client really needs all the state which is relevant to the prediction. In our case we're predicting movement, so velocity is needed. In an FPS game we'd need data related to shooting - what gun is the player holding, how many bullets do they have, when was the gun last fired, etc.
 
 We don't want to send this prediction-relevant data for all players though, bytes in each state packet from server to client is at a premium. Well, it isn't yet, but it will be. The solution is simple but involves a bit more work on the server - each player receives a bespoke state packet. In that packet they receive their own, fuller set of prediction-relevant state, followed by a series of visual state for all the other players.
 
+{{<asset_img "/images/mpfps_05/img005.png">}}
+
 The final piece of this particular puzzle, is input buffering on the server. When the client predicts forward, they do so such that their input for a given tick, arrives at the server just in time for it to be used.
 
+{{<asset_img "/images/mpfps_05/img006.png">}}
+<sub>How we wish packets behaved.</sub>
+
 In reality, because of our best friend - jitter - sometimes an input arrives just in time, sometimes it's late, sometimes it never shows up, and sometimes it's 2 or 3 ticks early.
+
+{{<asset_img "/images/mpfps_05/img007.png">}}
+<sub>How packets actually behave.</sub>
 
 To deal with this, the server has a buffer for each client, to store early inputs so that they can be used later. The size of this buffer is proportional to how much jitter we plan to allow. Looking at the code now, I've chosen a whole second, which is absurdly large in terms of time, but the memory usage is still negligible so I'll leave that as it is for now.
 
 Note that in the past the client just sent an input packet to the server, and the server just took whatever the most recent input was that it had from the client, and used that when ticking the simulation. Now that we have prediction, we really care about what tick a particular input packet was meant for, so that will need to now be part of the input packet.
+
+{{<asset_img "/images/mpfps_05/img008.png">}}
+<sub>New input packet layout.</sub>
 
 Initially I thought of implementing input buffering as a circular buffer of queues. Each future tick gets a queue of input packets, and when the server receives an input packet from a client, it adds it to the queue of inputs for that tick. When the server is about to tick the simulation, it runs over the input queue for that tick, for each item in the queue it copies the input data over the inputs used for that player for the previous tick. Any player who didn't get their input to the server in time, just carries on with their input from the last tick, it'll probably just result in a slight misprediction which will be corrected soon.
 ```cpp

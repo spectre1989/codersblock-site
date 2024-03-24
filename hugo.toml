@@ -36,3 +36,6 @@ theme = "dark-theme-editor"
     [markup.highlight]
         noClasses = false
         lineNos = true
+    [markup.goldmark]
+        [markup.goldmark.renderer]
+            unsafe = true
