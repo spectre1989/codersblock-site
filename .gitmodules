@@ -9,4 +9,4 @@
 	url = https://github.com/setsevireon/photophobia.git
 [submodule "themes/dark-theme-editor"]
 	path = themes/dark-theme-editor
-	url = https://github.com/JingWangTW/dark-theme-editor.git
+	url = https://github.com/spectre1989/dark-theme-editor.git
