@@ -104,7 +104,7 @@ White - up (increase speed)\
 Red - down (decrease speed/stop)\
 Blue - nothing</sub>
 
-***(The following section on handling of player inputs contains some mistakes, see [here](part8.html) for corrections)***
+***(The following section on handling of player inputs contains some mistakes, see [here](../part8) for corrections)***
 
 Client-Side Prediction allows us to make input feel responsive, despite the lag. The client *predicts* the results of their input so the player sees the results instantly. They also maintain a historic buffer of inputs and their predicted results. When a state packet is received from the server, they compare the predicted results against the servers actual results. If the client's predicted results don't match, then a ***misprediction*** has occurred, and they replay the historic buffer from the corrected state, back up to the client's current predicted state. For the client to predict the results of their input, they need to run the same movement logic on the client as will run on the server - this is why it's helpful to have the server and client as part of a single codebase, hence rebuilding the client in C++ in the last part of the series.
 
