@@ -110,6 +110,7 @@ div.chroma {
 aside.sidebar {
     overflow-y: auto;
     font-size: 14px;
+    width: 500px;
 }
 
 aside.sidebar::-webkit-scrollbar {
