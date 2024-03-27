@@ -1,5 +1,6 @@
 +++
 title = 'Making a Multiplayer FPS in C++ Part 8: Client-Side Prediction Revisited'
+filename = "Part 8: Client-Side Prediction Revisited"
 date = 2019-06-07T00:00:00Z
 draft = false
 aliases = ["/blog/multiplayer-fps-part-8"]

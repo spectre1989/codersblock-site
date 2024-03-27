@@ -1,5 +1,6 @@
 +++
 title = 'Making a Multiplayer FPS in C++ Part 6: Cleanup'
+filename = "Part 6: Cleanup"
 date = 2018-01-11T00:00:00Z
 draft = false
 aliases = ["/blog/multiplayer-fps-part-6"]
