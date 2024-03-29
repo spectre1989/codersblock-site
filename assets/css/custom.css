@@ -44,6 +44,9 @@ article.main > div.content a {
 
 article.main > div.article-meta > div:where(.breadcumb, .translation) > a {
     color: #d0ffb3;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
 }
 
 article.main > div.article-meta > div:where(.breadcumb, .translation) > a:hover {
@@ -53,7 +56,9 @@ article.main > div.article-meta > div:where(.breadcumb, .translation) > a:hover 
 article.main > div.title > h1.title-header {
     color: #e6e6e6;
     font-weight: 400;
-    font-size: 28px;
+    font-size: 23px;
+    letter-spacing: 1px;
+    line-height: 2em;
 }
 
 article.main > div.content h3 {
@@ -141,4 +146,15 @@ article.main div.content li:before {
 span.katex {
     font-size: 16.5px;
     line-height: 16px;
+}
+
+article.main > div.home > div.title > h2.subtitle {
+    color: #B3B3B3;
+    font-size: 12px;
+    letter-spacing: 5px;
+}
+
+img.logo {
+    width: 430px;
+    margin-left: -22px;
 }

@@ -27,10 +27,18 @@ theme = "dark-theme-editor"
 
     [params.header]
         # Website title for header banner.
-        title = "Coder's Block"
+        title = ""
+
+        logoImage = "images/logo.png"
 
         # Subtitle for this site, used in homepage only
-        subtitle = "Subtitle for the thing"
+        subtitle = "ADVENTURES IN NETCODE"
+
+    [params.homepage]
+        disableWalkthroughs = true
+
+    [params.page]
+        logoImage = "images/logo.png"
 
 [markup]
     [markup.highlight]
