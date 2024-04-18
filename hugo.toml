@@ -4,6 +4,8 @@ title = "Coder's Block"
 theme = "dark-theme-editor"
 [params]
     [params.footer]
+        copyrightStr = ""
+
         [params.footer.socialLink]
             github = "spectre1989"
             twitter = "codersblock"
@@ -18,10 +20,10 @@ theme = "dark-theme-editor"
         author = "Joe Best-Rotheray"
         
         # Website description for RSS and SEO. Theme will generate a <meta> tag for this item
-        description = "This is my new hugo site WAHEY AM I SEEING THIS"
+        description = "Adventures in netcode, game engines, and game development"
 
         # Website keywords. Theme will generate a <meta> tag for this item.
-        keywords = "hugo,site,new"
+        keywords = "netcode,programming,gamedev,c++,unreal,UE5,unity,games,sockets"
 
         localCss = ["css/custom.css"]
 
@@ -37,7 +39,7 @@ theme = "dark-theme-editor"
     [params.homepage]
         disableWalkthroughs = true
 
-        siteLongDescription = "This is where I'll say who I am and that netcode is my jam"
+        siteLongDescription = "Hello! I'm Joe, and I love netcode, game engines, and gamedev. I work on Fortnite for Epic Games, on server performance and memory. This is a sporadically updated and fairly disjointed collection of rambling articles."
 
         siteLongDescriptionTitle = "About"
 

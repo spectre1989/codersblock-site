@@ -163,4 +163,41 @@ div.headerLogo img {
 div.headerLogo {
     max-width: 800px;
     margin: 0 auto;
+    padding-bottom: 30px;
+}
+
+article.main > div.home {
+    max-width: 800px;
+}
+
+article.main > div.home > div.recommend {
+    margin-top: 60px;
+    color: #cbe6cb;
+}
+
+article.main > div.home > div.recommend > div.left > div.start {
+    margin-bottom: 60px;
+}
+
+div.home a {
+    color: #d0ffb3;
+}
+
+div.home a:hover{
+    color: #f8f8f8;
+}
+
+div.home li {
+    padding-bottom: 10px;
+}
+
+article.main > div.home > div.recommend > div.left {
+    width: unset;
+    padding-right: unset;
+}
+
+@media only screen and (max-width: 1400px) {
+    article.main:has(> div.home) {
+        padding: unset;
+    }
 }
