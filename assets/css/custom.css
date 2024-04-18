@@ -77,8 +77,9 @@ div.breadcumb {
     padding-bottom: 40px;
 }
 
-article.main > div.title > h1 {
+article.main > div.title {
     max-width: 800px;
+    display: block;
     margin: 0 auto;
 }
 
@@ -118,19 +119,19 @@ aside.sidebar {
     width: 500px;
 }
 
-aside.sidebar::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 8px;
     height: 8px;
     background-color: rgb(95, 94, 94);
 }
 
-aside.sidebar::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background: rgb(139, 139, 139);
     border-radius: 10pt;
 }
 
 article.main div.content li {
-    list-style-type:none;
+    list-style-type: none;
 }
 
 article.main div.content li:before { 
@@ -154,7 +155,12 @@ article.main > div.home > div.title > h2.subtitle {
     letter-spacing: 5px;
 }
 
-img.logo {
+div.headerLogo img {
     width: 430px;
     margin-left: -22px;
+}
+
+div.headerLogo {
+    max-width: 800px;
+    margin: 0 auto;
 }

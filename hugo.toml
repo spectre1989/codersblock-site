@@ -37,6 +37,10 @@ theme = "dark-theme-editor"
     [params.homepage]
         disableWalkthroughs = true
 
+        siteLongDescription = "This is where I'll say who I am and that netcode is my jam"
+
+        siteLongDescriptionTitle = "About"
+
     [params.page]
         logoImage = "images/logo.png"
 

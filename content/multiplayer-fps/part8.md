@@ -134,7 +134,7 @@ if (error.length_squared() > c_max_prediction_error_squared)
     }
 }
 ```
-#### A Change of Perspective
+### A Change of Perspective
 So far my player has been a weird sort of third-person cube car thing. It’s about time to actually switch to a first-person controller as the project demands.
 
 {{<youtube "ANEuTkpDmeg">}}
