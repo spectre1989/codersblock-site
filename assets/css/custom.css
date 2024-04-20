@@ -166,10 +166,6 @@ div.headerLogo {
     padding-bottom: 30px;
 }
 
-article.main > div.home {
-    max-width: 800px;
-}
-
 article.main > div.home > div.recommend {
     margin-top: 60px;
     color: #cbe6cb;
@@ -196,8 +192,12 @@ article.main > div.home > div.recommend > div.left {
     padding-right: unset;
 }
 
-@media only screen and (max-width: 1400px) {
-    article.main:has(> div.home) {
-        padding: unset;
-    }
+article.main:has(> div.home) {
+    padding: 8vh;
+    --artile_main_width: calc(85% - 3pt - 1px);
+}
+
+article.main > div.home {
+    max-width: 800px;
+    margin: 0 auto;
 }
