@@ -39,7 +39,7 @@ theme = "dark-theme-editor"
     [params.homepage]
         disableWalkthroughs = true
 
-        siteLongDescription = "Hello! I'm Joe, welcome to my corner of the internet where I delve into netcode, game engines, and game deveopment. I work for Epic Games on Fortnite, focusing specifically on optimising server performance and memory usage. This is a sporadically updated and fairly eclectic collection of rambling articles."
+        siteLongDescription = "Hello! I'm Joe, welcome to my corner of the internet where I delve into netcode, game engines, and game development. I work for Epic Games on Fortnite, focusing specifically on optimising server performance and memory usage. This is a sporadically updated and fairly eclectic collection of rambling articles."
 
         siteLongDescriptionTitle = "About"
 
