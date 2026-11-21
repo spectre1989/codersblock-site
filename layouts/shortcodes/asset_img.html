@@ -1,19 +1,22 @@
+{{/*
+  Usage: {{<asset_img "images/foo/bar.png">}}
+     or: {{<asset_img src="images/foo/bar.png" resize="600x">}}   (resize="" disables resizing)
+  By default images wider than 1000px are scaled down; smaller ones are left alone.
+*/}}
 {{ $asset_path := "" }}
 {{ $resize := "1000x" }}
+{{ $explicit := false }}
 {{ if .IsNamedParams }}
     {{ $asset_path = .Get "src" }}
-
-    {{/* grab resize like this because an empty string disables resizing */}}
     {{ range $k, $v := .Params }}
-        {{ if eq $k "resize" }}
-            {{ $resize = $v }}
-        {{ end }}
+        {{ if eq $k "resize" }}{{ $resize = $v }}{{ $explicit = true }}{{ end }}
     {{ end }}
 {{ else }}
     {{ $asset_path = .Get 0 }}
 {{ end }}
 {{ $img := resources.Get $asset_path }}
-{{ if $resize }}
+{{ if not $img }}{{ errorf "asset_img: %q not found (%s)" $asset_path .Position }}{{ end }}
+{{ if and $resize (or $explicit (gt $img.Width 1000)) }}
     {{ $img = $img.Resize $resize }}
 {{ end }}
-<img src="{{ $img.RelPermalink }}"/>
+<img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" alt="{{ .Get "alt" | default "" }}">

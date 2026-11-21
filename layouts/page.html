@@ -1,0 +1,45 @@
+{{ define "main" }}
+{{ $series := "" }}
+{{ $parts := slice }}
+{{ $idx := -1 }}
+{{ if eq .Section "multiplayer-fps" }}
+  {{ $series = .CurrentSection }}
+  {{ $parts = $series.Pages.ByDate }}
+  {{ range $i, $p := $parts }}{{ if eq $p $ }}{{ $idx = $i }}{{ end }}{{ end }}
+{{ end }}
+
+<article>
+  <header class="post-header">
+    {{ with $series }}
+    <p class="kicker"><a href="{{ .RelPermalink }}">{{ .Title }}</a> &middot; Part {{ add $idx 1 }} of {{ len $parts }}</p>
+    <h1 class="post-title">{{ replaceRE `^Part \d+:\s*` "" ($.Params.filename | default $.Title) }}</h1>
+    {{ else }}
+    <h1 class="post-title">{{ .Title }}</h1>
+    {{ end }}
+    <p class="post-meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 January 2006" }}</time>
+      <span aria-hidden="true">&middot;</span>
+      {{ .ReadingTime }} min read
+    </p>
+  </header>
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  {{ with $series }}
+  <nav class="series-nav" aria-label="Series navigation">
+    <div class="prev-next">
+      {{ if gt $idx 0 }}{{ with index $parts (sub $idx 1) }}
+      <a class="prev" href="{{ .RelPermalink }}"><span class="dir">&larr; Previous</span><span class="t">{{ replaceRE `^Part \d+:\s*` "" (.Params.filename | default .Title) }}</span></a>
+      {{ end }}{{ end }}
+      {{ if lt (add $idx 1) (len $parts) }}{{ with index $parts (add $idx 1) }}
+      <a class="next" href="{{ .RelPermalink }}"><span class="dir">Next &rarr;</span><span class="t">{{ replaceRE `^Part \d+:\s*` "" (.Params.filename | default .Title) }}</span></a>
+      {{ end }}{{ end }}
+    </div>
+    <h2 class="block-title">{{ .Title }}</h2>
+    {{ partial "series-list.html" (dict "pages" $parts "current" $) }}
+  </nav>
+  {{ end }}
+</article>
+{{ end }}

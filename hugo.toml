@@ -1,55 +1,29 @@
 baseURL = 'https://codersblock.org/'
-languageCode = 'en-gb'
+locale = 'en-gb'
 title = "Coder's Block"
-theme = "dark-theme-editor"
+
+# No tags/categories on this site, so don't generate empty taxonomy pages.
+disableKinds = ['taxonomy', 'term']
+
 [params]
-    [params.footer]
-        copyrightStr = ""
+    author = "Joe Best-Rotheray"
+    description = "Adventures in netcode, game engines, and game development"
+    tagline = "Adventures in netcode"
+    logo = "images/logo.png"
 
-        [params.footer.socialLink]
-            github = "spectre1989"
-            twitter = "codersblock"
-            email = "joe@codersblock.org"
-            linkedin = "joebestrotheray"
+    about = "This is a sporadically updated and eclectic collection of rambles. I delve into netcode, game engines, and game development. I work for IOI on the engine network team."
 
-    [params.globalFrontmatter]
-        # The author of this site. This will be shown in 
-        # 1. the footer of all page
-        # 2. the author filed in the single page. (this could be overwritten by the frontmatter of the single page.)
-        # Keep it an empty string or remove this item will hide it from the page
-        author = "Joe Best-Rotheray"
-        
-        # Website description for RSS and SEO. Theme will generate a <meta> tag for this item
-        description = "Adventures in netcode, game engines, and game development"
-
-        # Website keywords. Theme will generate a <meta> tag for this item.
-        keywords = "netcode,programming,gamedev,c++,unreal,UE5,unity,games,sockets"
-
-        localCss = ["css/custom.css"]
-
-    [params.header]
-        # Website title for header banner.
-        title = ""
-
-        logoImage = "images/logo.png"
-
-        # Subtitle for this site, used in homepage only
-        subtitle = "ADVENTURES IN NETCODE"
-
-    [params.homepage]
-        disableWalkthroughs = true
-
-        siteLongDescription = "Hello! I'm Joe, welcome to my corner of the internet where I delve into netcode, game engines, and game development. I work for Epic Games on Fortnite, focusing specifically on optimising server performance and memory usage. This is a sporadically updated and fairly eclectic collection of rambling articles."
-
-        siteLongDescriptionTitle = "About"
-
-    [params.page]
-        logoImage = "images/logo.png"
+    [params.social]
+        github = "spectre1989"
+        twitter = "codersblock"
+        linkedin = "joebestrotheray"
+        email = "joe@codersblock.org"
 
 [markup]
     [markup.highlight]
         noClasses = false
         lineNos = true
+        lineNumbersInTable = true
     [markup.goldmark]
         [markup.goldmark.renderer]
             unsafe = true

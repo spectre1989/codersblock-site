@@ -17,7 +17,7 @@ I’m no graphics guy, but I’m hoping I can still make an acceptable renderer.
 ### The Coordinate System
 Firstly I need to pick a coordinate system. For some reason, I always liked positive X-axis right, positive Y-axis up, and positive Z-axis forwards. I really have no idea why, but I found this tweet which nicely sums up the different coordinate systems and which engines/programs use which:
 
-{{< twitter user="FreyaHolmer" id="644881436982575104" >}}
+{{< x user="FreyaHolmer" id="644881436982575104" >}}
 
 It seems that I'm weird in thinking that Y is up (maybe it's because in graphics, Y is up/down the screen). It also seems that Unreal are on their own with left-handed Z-up, right-handed Z-up has Cryengine(and Lumberyard?), Source Engine, and more importantly Max and Blender. Seeing as I'm a sheep, I'll just follow those guys - right-handed Z-up. That means positive X-axis right, positive Y-axis forward, and positive Z-axis up.
 

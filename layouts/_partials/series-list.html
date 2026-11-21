@@ -1,0 +1,11 @@
+{{/* Numbered list of a series' parts. Expects dict "pages" (sorted) and "current" (page or nil). */}}
+<ol class="series-list">
+  {{ range $i, $p := .pages }}
+  <li{{ if eq $p $.current }} class="current"{{ end }}>
+    <span class="num">{{ printf "%02d" (add $i 1) }}</span>
+    {{ $label := $p.Params.filename | default $p.Title }}
+    {{ $label = replaceRE `^Part \d+:\s*` "" $label }}
+    {{ if eq $p $.current }}<span>{{ $label }}</span>{{ else }}<a href="{{ $p.RelPermalink }}">{{ $label }}</a>{{ end }}
+  </li>
+  {{ end }}
+</ol>

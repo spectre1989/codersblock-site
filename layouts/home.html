@@ -1,0 +1,33 @@
+{{ define "main" }}
+<section class="hero">
+  <h1 class="hero-logo"><img src="{{ site.Params.logo | relURL }}" alt="{{ site.Title }}" width="726" height="145"></h1>
+  <p class="tagline">{{ site.Params.tagline }}</p>
+</section>
+
+<section class="about">
+  <p>{{ site.Params.about }}</p>
+  {{ partial "social.html" . }}
+</section>
+
+{{ with site.GetPage "/multiplayer-fps" }}
+<section class="block">
+  <h2 class="block-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  {{ with .Description }}<p class="block-sub">{{ . }}</p>{{ end }}
+  {{ partial "series-list.html" (dict "pages" .Pages.ByDate "current" nil) }}
+</section>
+{{ end }}
+
+{{ with site.GetPage "/posts" }}
+<section class="block">
+  <h2 class="block-title">Articles</h2>
+  <ul class="post-list">
+    {{ range .Pages.ByDate.Reverse }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2006" }}</time>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}
